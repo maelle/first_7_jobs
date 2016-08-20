@@ -82,5 +82,9 @@ first7jobs_parsed <- first7jobs  %>%
   ungroup() %>%
   filter(!(wordsgroup == "" & rank == 8))
 
+first7jobs_parsed <- first7jobs_parsed %>%
+  group_by(status_id) %>%
+  filter(max(rank) == 7)
+                            
 
 save(first7jobs_parsed, file = "data/parsed_first7jobs.RData")
