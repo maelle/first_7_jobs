@@ -2,7 +2,6 @@ library("dplyr")
 library("tidyr")
 library("ggplot2")
 library("viridis")
-library("networkD3")
 load("data/output.RData")
 load("data/parsed_first7jobs.RData")
 # Output has same length as request, so here no need to join by MD5.
@@ -16,7 +15,7 @@ filter(output_with_words,
   geom_bar(aes(label))+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_fill_viridis(discrete = TRUE)
-ggsave(file = "count_categories.png")
+ggsave(file = "figures/count_categories.png", width = 8, height = 6)
 
 filter(output_with_words,
        probability > 0.5) %>%
@@ -25,7 +24,7 @@ ggplot() +
            position = "fill")+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_fill_viridis(discrete = TRUE)
-ggsave(file = "rank_by_category.png")
+ggsave(file = "figures/rank_by_category.png", width = 8, height = 6)
 
 # filter high probabilities
 output_with_words_high <- filter(output_with_words,

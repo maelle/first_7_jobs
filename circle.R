@@ -2,7 +2,7 @@ library("circlize")
 library("dplyr")
 load("data/output.RData")
 load("data/parsed_first7jobs.RData")
-png(filename="circle.png",
+png(filename="figures/circle.png",
     width = 1000, height = 1000)
 # Output has same length as request, so here no need to join by MD5.
 

@@ -1,0 +1,156 @@
+label,relevance,keyword,count
+Accounting / Finance,0.996,Accountant,46
+Accounting / Finance,0.483,account manager,8
+Accounting / Finance,0.362,Accounting clerk,6
+Accounting / Finance,0.362,financial analyst,7
+Accounting / Finance,0.269,Bookkeeper,9
+Administrative,0.998,office assistant,38
+Administrative,0.979,receptionist,79
+Administrative,0.393,front desk,20
+Administrative,0.387,assistant,179
+Administrative,0.363,office manager,13
+Architecture / Drafting,0.997,Landscaper,30
+Architecture / Drafting,0.653,applications,19
+Architecture / Drafting,0.515,Job,15
+Architecture / Drafting,0.172,surveyor,9
+Architecture / Drafting,0.103,Land surveyor,2
+Art/Design / Entertainment,0.998,designer,147
+Art/Design / Entertainment,0.945,Graphic Designer,34
+Art/Design / Entertainment,0.489,House painter,15
+Art/Design / Entertainment,0.489,sandwich artist,16
+Art/Design / Entertainment,0.456,web designer,18
+Banking / Loan / Insurance,0.996,bank teller,18
+Banking / Loan / Insurance,0.332,Private tutor,6
+Banking / Loan / Insurance,0.295,insurance,14
+Banking / Loan / Insurance,0.258,teller,26
+Banking / Loan / Insurance,0.221,University,11
+Beauty / Wellness,0.992,Dog,26
+Beauty / Wellness,0.802,Dog walker,7
+Beauty / Wellness,0.382,hot dog vendor,2
+Beauty / Wellness,0.382,Physical Therapy Aide,2
+Beauty / Wellness,0.344,dog sitter,3
+Business Development / Consulting,0.997,consultant,41
+Business Development / Consulting,0.332,analyst,17
+Business Development / Consulting,0.100,Business Owner,2
+Business Development / Consulting,0.100,Mgmt consultant,2
+Business Development / Consulting,0.100,strategist,3
+Education,0.997,Math tutor,20
+Education,0.753,teacher,178
+Education,0.748,library assistant,16
+Education,0.748,substitute teacher,15
+Education,0.581,high school teacher,7
+Engineering (Non-Software),0.998,engineer,68
+Engineering (Non-Software),0.143,Engineer intern,4
+Engineering (Non-Software),0.143,sales engineer,5
+Engineering (Non-Software),0.143,network engineer,4
+Engineering (Non-Software),0.107,Audio Engineer,3
+Facilities / General Labor,0.997,Janitor,40
+Facilities / General Labor,0.848,Grocery Bagger,18
+Facilities / General Labor,0.770,bagger,30
+Facilities / General Labor,0.598,factory worker,13
+Facilities / General Labor,0.535,Warehouse,40
+Hospitality,0.997,Hostess,47
+Hospitality,0.400,Gas station attendant,5
+Hospitality,0.336,Stock boy,7
+Hospitality,0.288,Kitchen porter,6
+Hospitality,0.240,Gas Station,5
+Human Resources,0.996,Recruiter,29
+Human Resources,0.443,coordinator,30
+Human Resources,0.221,Recruitment Consultant,4
+Human Resources,0.166,event coordinator,3
+Human Resources,0.148,Manager,4
+Installation / Maintenance / Repair,0.997,shop assistant,29
+Installation / Maintenance / Repair,0.236,shop,97
+Installation / Maintenance / Repair,0.217,golf course maintenance,3
+Installation / Maintenance / Repair,0.217,ice cream shop,3
+Installation / Maintenance / Repair,0.198,maintenance,30
+Legal,0.987,Law clerk,5
+Legal,0.987,corporate filth monkey,3
+Legal,0.987,Law firm,7
+Legal,0.658,Law Office Runner,2
+Legal,0.658,Paralegal,5
+Management,0.995,Director,30
+Management,0.452,manager,20
+Management,0.407,assistant manager,8
+Management,0.362,staff,17
+Management,0.226,retail assistant manager,2
+Manufacturing / Production / Construction / Logistics,0.994,construction worker,11
+Manufacturing / Production / Construction / Logistics,0.602,Assembly line worker,4
+Manufacturing / Production / Construction / Logistics,0.485,assembly,31
+Manufacturing / Production / Construction / Logistics,0.452,construction laborer,6
+Manufacturing / Production / Construction / Logistics,0.452,park ride operator,3
+Marketing / Advertising / PR,0.997,Marketing Intern,20
+Marketing / Advertising / PR,0.664,Marketing,106
+Marketing / Advertising / PR,0.564,intern,26
+Marketing / Advertising / PR,0.420,Market researcher,8
+Marketing / Advertising / PR,0.367,Social Media,16
+Medical / Healthcare,1.000,Babysitter,252
+Medical / Healthcare,0.528,Waitress,162
+Medical / Healthcare,0.360,Paperboy,80
+Medical / Healthcare,0.341,ice cream scooper,28
+Medical / Healthcare,0.271,Waiter,82
+Non-profit / Volunteering,0.999,camp counselor,74
+Non-profit / Volunteering,0.277,Camp,74
+Non-profit / Volunteering,0.077,social worker,5
+Non-profit / Volunteering,0.061,student assistant,4
+Non-profit / Volunteering,0.061,Orientation Leader,4
+Product Management / Project Management,0.997,project manager,20
+Product Management / Project Management,0.554,manager,101
+Product Management / Project Management,0.472,Production Manager,11
+Product Management / Project Management,0.262,Programming Intern,5
+Product Management / Project Management,0.210,Program manager,4
+Real Estate,0.993,real estate,10
+Real Estate,0.368,Real Estate Broker,2
+Real Estate,0.221,mortgage broker,2
+Real Estate,0.221,Actor Commercials,2
+Real Estate,0.221,trainee,6
+Restaurant / Food Services,0.999,Dishwasher,136
+Restaurant / Food Services,0.392,fast food,43
+Restaurant / Food Services,0.376,Barista,48
+Restaurant / Food Services,0.349,Bartender,62
+Restaurant / Food Services,0.247,clerk,140
+Retail,0.999,cashier,218
+Retail,0.282,grocery store,21
+Retail,0.253,retail sales,22
+Retail,0.210,Grocery,58
+Retail,0.197,grocery clerk,15
+Sales / Customer Care,0.998,sales,257
+Sales / Customer Care,0.736,customer service,26
+Sales / Customer Care,0.552,Sales Associate,30
+Sales / Customer Care,0.491,Customer Service Rep,8
+Sales / Customer Care,0.478,Sales assistant,14
+Science / Research,0.998,research assistant,45
+Science / Research,0.318,Tech,62
+Science / Research,0.308,research,129
+Science / Research,0.285,tech support,13
+Science / Research,0.285,lab tech,15
+Security / Law Enforcement,0.997,Security guard,22
+Security / Law Enforcement,0.376,office,75
+Security / Law Enforcement,0.227,office temp,5
+Security / Law Enforcement,0.227,Office admin,6
+Security / Law Enforcement,0.190,Security,48
+Skilled Trade,0.991,Carpenter,11
+Skilled Trade,0.721,summer,19
+Skilled Trade,0.541,Manufacturer,7
+Skilled Trade,0.450,Computer Repair Tech,2
+Skilled Trade,0.360,repair,10
+Software Development / IT,0.998,data entry,39
+Software Development / IT,0.837,Web Developer,29
+Software Development / IT,0.483,Software Engineer,17
+Software Development / IT,0.376,Programmer,43
+Software Development / IT,0.355,Developer,86
+Sports / Fitness,0.998,Lifeguard,62
+Sports / Fitness,0.275,Swim instructor,14
+Sports / Fitness,0.219,instructor,69
+Sports / Fitness,0.206,Soccer Referee,7
+Sports / Fitness,0.172,Gymnastics coach,5
+Travel / Transportation,0.998,Pizza delivery,32
+Travel / Transportation,0.561,Newspaper delivery,22
+Travel / Transportation,0.499,Bus Boy,16
+Travel / Transportation,0.499,Paper route,16
+Travel / Transportation,0.405,delivery driver,13
+Writing / Editing / Publishing,0.997,intern,82
+Writing / Editing / Publishing,0.397,writer,69
+Writing / Editing / Publishing,0.392,Freelance Writer,9
+Writing / Editing / Publishing,0.380,Copywriter,18
+Writing / Editing / Publishing,0.289,reporter,47
