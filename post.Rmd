@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
 library("dplyr")
 ```
 
@@ -17,7 +17,7 @@ Have you tweeted about your "#firstsevenjobs"? I did!
 
 “#firstsevenjobs" and “#first7jobs" tweets initial goal was to provide a short description of the 7 first activities they were paid for. It was quite fun to read them in my timeline! Of course the hashtag was also used by spammers, for making jokes, and for advertising for analyses in R, so not all the tweets contain the 7 descriptions. 
 
-However, I am confident quite a lot of “#firstsevenjobs" and “#first7jobs" actually describe first jobs, so I decided to use them as example of text analysis in R, starting from querying Twitter API with the rtweet package, then cleaning the tweets a bit, and then using the Monkeylearn package to classify the jobs in an industry.
+However, I am confident quite a lot of “#firstsevenjobs" and “#first7jobs" actually describe first jobs, so I decided to use them as example of text analysis in R, starting from querying Twitter API with the rtweet package, then cleaning the tweets a bit, and then using the monkeylearn package to classify the jobs in an industry.
 
 ```{r, echo = FALSE}
 load("data/first7jobs.RData")
@@ -57,7 +57,9 @@ load("data/output.RData")
 load("data/parsed_first7jobs.RData")
 ```
 
-Monkeylearn's job classifier assigns an industry and a probability to each job description. ASK FEDERICO FOR MORE DETAILS ABOUT THE CLASSIFIER, TRAINING DATA, PROBABILITY MEANINING, ETC.
+Monkeylearn's job classifier assigns an industry out of 31 possible industries and a probability to each job description. ASK FEDERICO FOR MORE DETAILS ABOUT THE CLASSIFIER, TRAINING DATA, PROBABILITY MEANINING, ETC.
+
+I decided to keep only job descriptions for which the probability given by the classifier was higher than 50%. This corresponds to `r nrow(filter(output, probability > 0.5))` job descriptions out of the initial `r nrow(first7jobs_parsed)` job descriptions. Jobs for which we predicted a category with a probability higher than 0.5 are divided as follows among industries:
 
 ```{r}
 # Output has same length as request, so here no need to join by MD5.
@@ -68,11 +70,114 @@ output_with_words <- bind_cols(output, first7jobs_parsed)
 filter(output_with_words,
        probability > 0.5) %>%
   ggplot() +
-  geom_bar(aes(label))+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_viridis(discrete = TRUE)
+  geom_bar(aes(label, fill = label))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none") +
+  scale_fill_viridis(discrete = TRUE, option = "magma")
 ```
 
+The most important categories are Restaurant/Food services and Retail. Usual first jobs? 
+
+Now let's focus on exhaustive tweets only, id est tweets for which we could predict an industry for all 7 jobs with a probability higher than 50%.
+
+```{r}
+complete_tweets <- output_with_words %>%
+  group_by(status_id) %>%
+  filter(all(probability > 0.5))
+```
+
+This corresponds to `r nrow(complete_tweets)/7`. Remember that we started out with `r nrow(first7jobs)` from Twitter API, of which we could parse `r nrow(first7jobs_parsed)`. We lost a lot along the way, but remember that computers still do not read as well as humans, and I also did not choose to update the classifier, which one could do for real life applications. For each tweet the order of jobs gave their chronological order (well I hope so). Were job descriptions harder to classify depending on their rank?
+
+```{r}
+output_with_words %>%
+  mutate(more_than_fifty_percent = probability > 0.5) %>%
+  ggplot() +
+  geom_bar(aes(x = rank, fill = more_than_fifty_percent)) +
+  scale_fill_viridis(discrete = TRUE, option = "inferno")
+```
+
+It seems to me that later job descriptions are easier to classify. Maybe because first jobs can be something like "Daddy's knitting helper" or "Serial Lego builder" while later jobs are adult jobs?
+
+Now let's go back to tweets for which all industries could be predicted. As biased as it is, our sample of `r nrow(complete_tweets)/7` tweets is still a nice playground for looking at life trajectories. For instance, are some categories rather first first jobs than late first jobs?
+
+```{r}
+complete_tweets %>%
+  mutate(rank = as.factor(rank)) %>%
+ggplot() +
+  geom_bar(aes(label, fill = rank),
+           position = "fill")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis(discrete = TRUE)
+
+```
+
+We can do the same graph for all job descriptions, even the ones in incompletely predicted tweets:
+
+```{r}
+filter(output_with_words, probability > 0.5) %>%
+  mutate(rank = as.factor(rank)) %>%
+ggplot() +
+  geom_bar(aes(label, fill = rank),
+           position = "fill")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_viridis(discrete = TRUE)
+
+```
+
+In both cases I'd tend to say that some industries such as Business Development / Consulting are not first-entry jobs, while Non-Profit / Volunteering are. Not a real surprise I guess?
+
+I've said I wanted to look at life trajectories. This dataset won't give me any information about the level of the job of course, e.g. whether you start as a clerk and end up leading your company, but I can look at how people move from one category to another. [My husband](https://twitter.com/damienaberlin) gave me a great idea of a circle graph he had seen in a newspaper. For this I used only tweets for which all 7 jobs could be predicted with a probability higher than 0.5.
+
+```{r}
+library("circlize")
+
+
+# get data with from and to
+count <- complete_tweets %>%
+  tibble::as_tibble() %>%
+  select(status_id, label) %>%
+  group_by(status_id) %>%
+  mutate(category_from = lag(label)) %>%
+  rename(category_to = label) %>%
+  filter(!is.na(category_from)) %>%
+  ungroup() %>%
+  group_by(category_to, category_from) 
+
+df <- tibble::as_tibble(table(count$category_to, count$category_from))
+df <- rename(df, src = Var1, target = Var2)
+
+
+category = c(structure(df$src, names=df$src), 
+          structure(df$target, names= df$target))
+category = category[!duplicated(names(category))]
+category = category[order(category, names(category))]
+category_color = identity(viridis::viridis_pal(option = "plasma")(length(unique(c(df$src, df$target)))))
+
+
+gap.degree = do.call("c", lapply(table(category), function(i) c(rep(2, i-1), 8)))
+circos.par(gap.degree = gap.degree)
+
+chordDiagram(df, order = names(category), grid.col = category_color,
+             directional = 1, annotationTrack = "grid",
+             preAllocateTracks = list(
+               list(track.height = 0.02))
+)
+
+for(b in 1:length(category)) {
+  highlight.sector(sector.index = category[b], track.index = 1, col = "white", 
+                   text = category[b], 
+                   facing = "bending.outside",
+                   niceFacing = TRUE)
+}
+
+circos.clear()
+
+
+
+
+```
+
+On this circle you see different industries, and the transition between them. [David Robinson](http://varianceexplained.org/) suggested I found the most common transitions and showed them in directed graphs but I'll keep this idea for later, since this post is quite long already, ah!
 
 Note that my whole code is [in this Github repo](https://github.com/masalmon/first_7_jobs). I used those R packages: rtweet, dplyr, tidyr, ggplot2, stringr, circlize and of course monkeylearn. Thanks a lot to their authors, and obviously thanks to people whose tweets I used... I might be a *little bit* more grateful to people who used separators and only posted 7 tweets. If you want to read another "#first7" analysis in R, I highly recommend [David Robinson's post](http://varianceexplained.org/r/seven-fav-packages/) about the "7FavPackages" hashtag.
 
