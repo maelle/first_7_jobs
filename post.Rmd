@@ -2,7 +2,7 @@
 title: 'Analyzing #first7jobs tweets with Monkeylearn and R'
 author: "M. Salmon"
 date: "August 25, 2016"
-output: html_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -126,7 +126,7 @@ ggplot() +
 
 In both cases I'd tend to say that some industries such as Business Development / Consulting are not first-entry jobs, while Non-Profit / Volunteering are. Not a real surprise I guess?
 
-I've said I wanted to look at life trajectories. This dataset won't give me any information about the level of the job of course, e.g. whether you start as a clerk and end up leading your company, but I can look at how people move from one category to another. [My husband](https://twitter.com/damienaberlin) gave me a great idea of a circle graph he had seen in a newspaper. For this I used only tweets for which all 7 jobs could be predicted with a probability higher than 0.5.
+I've said I wanted to look at life trajectories. This dataset won't give me any information about the level of the job of course, e.g. whether you start as a clerk and end up leading your company, but I can look at how people move from one category to another. [My husband](http://dacornu.github.io/) gave me a great idea of a circle graph he had seen in a newspaper. For this I used only tweets for which all 7 jobs could be predicted with a probability higher than 0.5.
 
 ```{r}
 library("circlize")
@@ -166,7 +166,7 @@ chordDiagram(df, order = names(category), grid.col = category_color,
 for(b in 1:length(category)) {
   highlight.sector(sector.index = category[b], track.index = 1, col = "white", 
                    text = category[b], 
-                   facing = "bending.outside",
+                   facing = "clockwise",
                    niceFacing = TRUE)
 }
 
