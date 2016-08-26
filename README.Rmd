@@ -23,6 +23,6 @@ I have divided the code into several scripts, hopefully you and older-I will fin
 
 * [Finding the keywords by industry](code/find_keywords_by_industry.R), with monkeylearn and dplyr again.
 
-* The visualization code itself is in the [Rmd of the post](post/post.Rmd). I used [ggplot2](https://github.com/hadley/ggplot2) for the numerous barplots, [viridis](https://github.com/sjmgarnier/viridis) for nice color scales, and [circlize](https://github.com/jokergoo/circlize) for the circle plot.
+* The visualization code itself is in the [Rmd of the post](post.Rmd). I used [ggplot2](https://github.com/hadley/ggplot2) for the numerous barplots, [viridis](https://github.com/sjmgarnier/viridis) for nice color scales, and [circlize](https://github.com/jokergoo/circlize) for the circle plot.
 
 I'll update the repo once the post is ready and up on Monkeylearn blog. Until then, don't hesitate to [open an issue](https://github.com/masalmon/first_7_jobs/issues).
