@@ -13,7 +13,7 @@ library("dplyr")
 
 Have you tweeted about your "#firstsevenjobs"? I did!
 
-<img src="myfirst7jobs.png" width="600px" />
+<img src="figures/myfirst7jobs.png" width="600px" />
 
 “#firstsevenjobs" and “#first7jobs" tweets initial goal was to provide a short description of the 7 first activities they were paid for. It was quite fun to read them in my timeline! Of course the hashtag was also used by spammers, for making jokes, and for advertising for analyses in R, so not all the tweets contain the 7 descriptions. 
 
