@@ -7,7 +7,8 @@ output: word_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, cache = TRUE,
-                      warning = FALSE, message = FALSE)
+                      warning = FALSE, message = FALSE,
+                      fig.width = 12, fig.height = 10)
 library("dplyr")
 ```
 # Introduction
@@ -18,9 +19,9 @@ Have you tweeted about your "#firstsevenjobs"? I did!
 ![My first seven jobs.](figures/myfirst7jobs.png)
 
 
-“#firstsevenjobs" and “#first7jobs" tweets initial goal was to provide a short description of the 7 first activities they were paid for. It was quite fun to read them in my timeline! Of course the hashtag was also used by spammers, for making jokes, and for advertising for analyses in R, so not all the tweets contain the 7 descriptions. 
+“#firstsevenjobs" and “#first7jobs" tweets initial goal was to provide a short description of the 7 first activities they were paid for. It was quite fun to read them in my timeline! Of course the hashtag was also used by spammers, for making jokes, and for commenting the hashtag, so not all the tweets contain 7 job descriptions. 
 
-However, I am confident quite a lot of “#firstsevenjobs" and “#first7jobs" actually describe first jobs, so I decided to use them as example of text analysis in R, starting from querying Twitter API with the rtweet package, then cleaning the tweets a bit, and then using the monkeylearn package to classify the jobs in an industry.
+However, I am confident quite a lot of “#firstsevenjobs" and “#first7jobs" actually describe first jobs, so I decided to use them as example of text analysis in R with Monkeylearn, starting from querying Twitter API with the rtweet package, then cleaning the tweets a bit, and then using the monkeylearn package to classify the jobs in an industry.
 
 ```{r, echo = FALSE}
 load("data/first7jobs.RData")
@@ -29,7 +30,7 @@ load("data/parsed_first7jobs.RData")
 
 # Getting the tweets
 
-I used the [`rtweet` R package](https://github.com/mkearney/rtweet/) for getting tweets via the Twitter API, searching for both “#firstsevenjobs" and “#first7jobs" hashtags and then keeping only unique non-retweeted tweets in English. I got `r nrow(first7jobs)` tweets. This does not mean there were only that few tweets produced with the hashtags, but the Twitter API does not output aaall the tweets. You'd have to pay for it. But hey that's a good number of tweets to start with, so I won't complain. Here is part of the table I got:
+I used the [`rtweet` R package](https://github.com/mkearney/rtweet/) for getting tweets via the Twitter API, searching for both “#firstsevenjobs" and “#first7jobs" hashtags and then keeping only unique non-retweeted tweets in English. I got `r nrow(first7jobs)` tweets, sent between the `r as.Date(min(first7jobs$created_at))` and the `r as.Date(max(first7jobs$created_at))`. This does not mean there were only that few tweets produced with the hashtags, but the Twitter API does not output *all* the tweets. You'd have to pay for it. But hey that's a good number of tweets to start with, so I won't complain. Here is part of the table I got:
 
 ```{r}
 set.seed(1)
@@ -38,23 +39,22 @@ knitr::kable(first7jobs[sample(1:nrow(first7jobs), 10), c("status_id", "text")])
 
 # Parsing the tweets
 
-So you see, part of them contains actual job descriptions, others don't... I mean, even I polluted the hashtag for advertising my own analysis! Among those that do describe jobs, some use commas or new lines between descriptions, or number them, or simply use spaces... Therefore, parsing tweets for getting 7 job descriptions per tweet was a little challenge. 
+So you see, part of them contains actual job descriptions, others don't. I mean, even I polluted the hashtag for advertising my own analysis! Among those that do describe jobs, some use commas or new lines between descriptions, or number them, or simply use spaces... Therefore, parsing tweets for getting 7 job descriptions per tweet was a little challenge. 
 
-I counted the number of possible separators for finding which one I should probably use to cut the tweet into 7 part. This yielded tweets cut in several parts... sometimes less than 7, sometimes more. I could not parse tweets whose descriptions were separated only by spaces because words inside a description are separated by spaces too so I could not make the difference. Besides, some people have tweeted about less or more than 7 packages. For instance one tweet says I have not had seven jobs yet but so far...\n- Accounts Assistant\n- Executive PA\n- Social Media Lead\n\nNext,yoga instructor?\n  #FirstSevenJobs". I did my best to remove tweet parts that were something like "Here are my #firstsevenjobs", in order to keep only the job descriptions. At the end I kept only the tweets that had exactly 7 parts. 
-
+I counted the number of possible separators for finding which one I should probably use to cut the tweet into 7 parts. This yielded tweets cut in several parts -- sometimes less than 7, sometimes more. I could not parse tweets whose descriptions were separated only by spaces because words inside a description are separated by spaces too so I could not make the difference. Besides, some people have tweeted about less or more than 7 jobs. For instance one tweet says *I have not had seven jobs yet but so far...\n- Accounts Assistant\n- Executive PA\n- Social Media Lead\n\nNext,yoga instructor?\n  #FirstSevenJobs"*. I did my best to remove tweet parts that were something like "Here are my #firstsevenjobs", in order to keep only the job descriptions. At the end I kept only the tweets that had exactly 7 parts. 
 Out of `r nrow(first7jobs)` I got `r nrow(first7jobs_parsed) / 7` tweets, that is `r nrow(first7jobs_parsed)` job descriptions. That is *a lot*. Here is an excerpt of the table:
 
 ```{r}
 set.seed(1)
-select(first7jobs_parsed, status_id, wordsgroup) %>%
+select(first7jobs_parsed, status_id, wordsgroup, rank) %>%
   head(n = 21) %>%
   knitr::kable()
 ```
 
-# Summarizing the information by assigning an industry to each job
+Rank is the rank of the jobs in the tweet, which should be the chronological rank too. For instance, for the first tweet, the first job is "shopping bag", the second "shopping assistant", etc.
 
- It would take a long time to read them all the tweets, although I did end up reading a lot of tweets while preparing this post. I wanted to have a general idea of what people did in their life. I turned to machine learning to help me get some information out of the tweets. I'm the creator and maintainer of an [R package called monkeylearn](https://github.com/ropenscilabs/monkeylearn), which is part of the [rOpenSci project](http://ropensci.org/), that allows to use existing Monkeylearn classifiers and extractors, so I knew that Monkeylearn had a [cool job classifier](https://app.monkeylearn.com/main/classifiers/cl_i7vMzUB7/). I sent all the `nrow(first7packages_parsed)` job descriptions to Monkeylearn API.
- 
+# Monkeylearn magic: Summarizing the information by assigning an industry to each job
+
 ```{r}
 library("dplyr")
 library("tidyr")
@@ -64,31 +64,37 @@ load("data/output.RData")
 load("data/parsed_first7jobs.RData")
 ```
 
-Monkeylearn's job classifier assigns an industry out of 31 possible industries and a probability to each job description. ASK FEDERICO FOR MORE DETAILS ABOUT THE CLASSIFIER, TRAINING DATA, PROBABILITY MEANINING, ETC.
+ It would take a long time to read them all the tweets, although I did end up reading a lot of tweets while preparing this post. I wanted to have a general idea of what people did in their life. I turned to machine learning to help me get some information out of the tweets. I'm the creator and maintainer of an [R package called monkeylearn](https://github.com/ropenscilabs/monkeylearn), which is part of the [rOpenSci project](http://ropensci.org/), that allows to use existing Monkeylearn classifiers and extractors, so I knew that Monkeylearn had a [cool job classifier](https://app.monkeylearn.com/main/classifiers/cl_i7vMzUB7/). I sent all the `r nrow(first7jobs_parsed)` job descriptions to Monkeylearn API.
+ 
+Monkeylearn's job classifier assigns an industry out of 31 possible industries and a probability to each job description. The algorithm uses a [supported vector machines (SVM) model](https://en.wikipedia.org/wiki/Support_vector_machine) for predicting the category of a job. It was originally developped by a client of Monkeylearn as a public module, and was then further developped by the Monkeylearn team, still as a public module -- I really like this collaborative effort. As a Monkeylearn user one could fork the classifier and play with catergories definitions, add or improve data for training the model, etc. With my package one can only use existing models, so that a possible workflow would be to develop modules outside of R and then to use them in R in production. If you wish to know more about classifiers, you can have a look at [Monkeylearn knowledge base](http://docs.monkeylearn.com/knowledge-base/) or even take a Machine learning MOOC such as [this one](https://www.coursera.org/learn/machine-learning). But I disgress, I've been using the jobs classifier as it is, and it was quite fun and above all promising.
 
-I decided to keep only job descriptions for which the probability given by the classifier was higher than 50%. This corresponds to `r nrow(filter(output, probability > 0.5))` job descriptions out of the initial `r nrow(first7jobs_parsed)` job descriptions. Jobs for which we predicted a category with a probability higher than 0.5 are divided as follows among industries:
+I decided to keep only job descriptions for which the probability given by the classifier was higher than 50%. This corresponds to `r nrow(filter(output, probability > 0.5))` job descriptions out of the initial `r nrow(first7jobs_parsed)` job descriptions. 
+
+# Tweets coverage by the classifier
+
+I then wondered how many jobs could be classified with a probability superior to 50% inside each tweet.
 
 ```{r}
 # Output has same length as request, so here no need to join by MD5.
 
 output_with_words <- bind_cols(output, first7jobs_parsed)
-
-
-filter(output_with_words,
-       probability > 0.5) %>%
+output_with_words %>%
+  filter(probability > 0.5) %>%
+  group_by(status_id) %>%
+  summarize(n = n()) %>%
   ggplot() +
-  geom_bar(aes(label, fill = label))+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "none") +
-  scale_fill_viridis(discrete = TRUE, option = "magma") +
-  xlab("")
+  geom_bar(aes(n, fill = as.factor(n)), stat = "count") +
+  xlab("Number of jobs classified with probability > 0.5 by tweet")+
+  scale_fill_viridis(discrete = TRUE, option = "plasma")+
+    theme(text = element_text(size=25),
+          legend.position = "none")
 ```
 
-The most important categories are Restaurant/Food services and Retail. Usual first jobs? 
+For each `r nrow(first7jobs_parsed)` of the tweets I sent to the jobs classifier, I got an industry with a probability higher to 0.5 for on average 4-5 job descriptions. We might want even more, and as I'll point it out later, we could get more if we put some effort into it and take full advantage of Monkeylearn possibilities!
 
 # What are jobs by industry?
 
-In this work I did not try to change the classifier so I trusted it, but I was curious to know which jobs ended up in each category. I had a glance at descriptions by industry but this can take a while given the number of jobs in some categories. Thanksfully [Federico Pascual](https://twitter.com/FedericoPascual) told me I could use [Monkeylearn's keyword extractor](https://app.monkeylearn.com/main/extractors/ex_y7BPYzNG/) on all job descriptions of each category to find dominant patterns. Such a nice idea, and something my package supports. I chose to get 5 keywords by industry. Here is the result:
+In this work I used the classifier as it was without modifying it, but I was curious to know which jobs ended up in each category. I had a glance at descriptions by industry but this can take a while given the number of jobs in some categories. Thanksfully [Federico Pascual](https://twitter.com/FedericoPascual) reminded me I could use [Monkeylearn's keyword extractor](https://app.monkeylearn.com/main/extractors/ex_y7BPYzNG/) on all job descriptions of each category to find dominant patterns. Such a nice idea, and something my package supports. I chose to get 5 keywords by industry. Here is the result:
 
 ```{r}
 
@@ -100,48 +106,37 @@ readr::read_csv("data/keywords_by_industry.csv") %>%
 
 ```
 
-Some keywords look logical to our human understanding, some others don't, for instance dog-sitting as a beauty/wellness job... But wait having a dog is good for your health so people caring for your dog help your wellness, right?
+For some categories, keywords seem natural to us, for some others we might be more surprised. For instance, the algorithm was trained with data wich included "'Pet Stylist', 'Dog Trainer', 'Pet Stylist (DOG GROOMER)'" for the Wellness/Beauty category, and no "Dog sitter", so that's why here dog sitting is a wellness job. But wait having a dog is good for your health so people caring for your dog help your wellness, right?
 
 ![No comment, say hi to my sibling Mowgli. He's quite a beauty.](figures/mowgli.jpg)
 
-FEDERICO -> YOU MIGHT WANNA ADD A FEW LINES ABOUT HOW TRAINING A CLASSIFIER CAN IMPROVE IT ETC.
+So, well, as any statistical or machine learning prediction... the data you use for training your model is quite crucial. The jobs classifier could probably use even more data for improving classification. As any Monkeylearn public module, it can be built upon and improved, so who's in for forking it? In the meanwhile, it still offers an interesting output to play with. I nearly want to add "Monkeylearn user" as an "Entertainment" job because our sample of classified job descriptions is a nice playground for looking at life trajectories. 
 
-# Rank and industry prediction
+# What sorts of jobs did people describe in their tweets?
 
-Now let's focus on exhaustive tweets only, id est tweets for which we could predict an industry for all 7 jobs with a probability higher than 50%.
-
-```{r}
-complete_tweets <- output_with_words %>%
-  group_by(status_id) %>%
-  filter(all(probability > 0.5))
-```
-
-This corresponds to `r nrow(complete_tweets)/7`. Remember that we started out with `r nrow(first7jobs)` from Twitter API, of which we could parse `r nrow(first7jobs_parsed)`. We lost a lot along the way, but remember that computers still do not read as well as humans, and I also did not choose to update the classifier, which one could do for real life applications. For each tweet the order of jobs gave their chronological order (well I hope so). Were job descriptions harder to classify depending on their rank?
+The `r nrow(filter(output, probability > 0.5))` jobs for which we predicted a category with a probability higher than 0.5 are divided as follows among industries:
 
 ```{r}
-output_with_words %>%
-  mutate(more_than_fifty_percent = probability > 0.5) %>%
+
+
+
+filter(output_with_words,
+       probability > 0.5) %>%
   ggplot() +
-  geom_bar(aes(x = rank, fill = more_than_fifty_percent)) +
-  scale_fill_viridis(discrete = TRUE, option = "inferno")
+  geom_bar(aes(label, fill = label))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none") +
+  scale_fill_viridis(discrete = TRUE, option = "magma")+
+    theme(text = element_text(size=25)) +
+  xlab("")
 ```
 
-It seems to me that later job descriptions are easier to classify. Maybe because first jobs can be something like "Daddy's knitting helper" or "Serial Lego builder" while later jobs are adult jobs?
+The most important categories are Restaurant/Food services and Retail. Usual first jobs? 
 
-Now let's go back to tweets for which all industries could be predicted. As biased as it is, our sample of `r nrow(complete_tweets)/7` tweets is still a nice playground for looking at life trajectories. For instance, are some categories rather first first jobs than late first jobs?
+# Juniorness of the jobs in each industry
 
-```{r}
-complete_tweets %>%
-  mutate(rank = as.factor(rank)) %>%
-ggplot() +
-  geom_bar(aes(label, fill = rank),
-           position = "fill")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_viridis(discrete = TRUE)
+Since we know for each job whether it was the first, third or seventh job of the tweeter, we can explore whether some categories are rather first first jobs than late first jobs. For this, inside each category we can look if the category was mostly a label for first first jobs or for seventh first jobs. See it for yourself:
 
-```
-
-We can do the same graph for all job descriptions, even the ones in incompletely predicted tweets:
 
 ```{r}
 filter(output_with_words, probability > 0.5) %>%
@@ -149,16 +144,19 @@ filter(output_with_words, probability > 0.5) %>%
 ggplot() +
   geom_bar(aes(label, fill = rank),
            position = "fill")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+    theme(text = element_text(size=25)) +
   scale_fill_viridis(discrete = TRUE)
 
 ```
 
-In both cases I'd tend to say that some industries such as Business Development / Consulting are not first-entry jobs, while Non-Profit / Volunteering are. Not a real surprise I guess?
+I'd tend to say that some industries such as Business Development / Consulting are not first-entry jobs (more yellow/green i.e. later jobs), while Non-Profit / Volunteering have a higher proportion of brand-new workers (more blue). Not a real surprise I guess?
+
+
 
 # Transitions between industries
 
-I've said I wanted to look at life trajectories. This dataset won't give me any information about the level of the job of course, e.g. whether you start as a clerk and end up leading your company, but I can look at how people move from one category to another. [My husband](http://dacornu.github.io/) gave me a great idea of a circle graph he had seen in a newspaper. For this I used only job descriptions for which an industry was predicted with a probability higher than 0.5. I kept only possible transitions where there were present more than 15 times in the data, otherwise we'll end up looking at a [hairball](https://twitter.com/drob/status/768485328244056065). I chose not to keep only complete tweets, in order to observe enough transitions.
+I've said I wanted to look at life trajectories. This dataset won't give me any information about the level of the job of course, e.g. whether you start as a clerk and end up leading your company, but I can look at how people move from one category to another. [My husband](http://dacornu.github.io/) gave me a great idea of a circle graph he had seen in a newspaper. For this I used only job descriptions for which an industry was predicted with a probability higher than 0.5. I kept only possible transitions where there were present more than 10 times in the data, otherwise we'll end up looking at a [hairball](https://twitter.com/drob/status/768485328244056065). 
 
 ```{r, fig.width=10, fig.height=10}
 library("circlize")
@@ -175,7 +173,7 @@ count <- mutate(output_with_words,
   filter(!is.na(category_from)) %>%
   ungroup() %>%
   group_by(category_to, category_from)  %>%
-  filter(n() > 15)
+  filter(n() > 10)
 
 df <- tibble::as_tibble(table(count$category_to, count$category_from))
 df <- rename(df, src = Var1, target = Var2)
@@ -212,11 +210,9 @@ circos.clear()
 
 ```
 
-ADD INTERPRETATION.
+On this circle you see different industries, and the transition between them. The length of the circle occupied by each industry depends on the number of jobs belonging to this category, so again the Food and Restauration category is the biggest one. One can see that people taking a position in the Hospitality industry, below the circle, often come from the Restauration or the Retail industry. When they leave the industry, they'll often go work in the Restauration industry. [David Robinson](http://varianceexplained.org/) suggested I found the most common transitions and showed them in directed graphs but I'll keep this idea for later, since this post is quite long already, ah!
 
-On this circle you see different industries, and the transition between them. [David Robinson](http://varianceexplained.org/) suggested I found the most common transitions and showed them in directed graphs but I'll keep this idea for later, since this post is quite long already, ah!
-
-ADD CONCLUDING WORDS.
+As a conclusion, I'm quite excited by the possibilities offered by Monkeylearn for text mining. I might be a grumpy and skeptical statistician so I'll tend to look at all the shortcomings of predictions, but really I think that if ones takes the time to train a module well, they can then get pretty cool information from text written by humans. Now if you tweet about this article, I might go and look at [Monkeylearn's sentiment analysis for tweets module](https://app.monkeylearn.com/main/classifiers/cl_qkjxv9Ly/) instead of reading them.
 
 # Acknowledgements
 
