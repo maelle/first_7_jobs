@@ -30,9 +30,8 @@ scripts are:
     industry](code/find_keywords_by_industry.R), with monkeylearn and
     dplyr again.
 
--   The visualization code itself is in the [Rmd of the
-    post](post/post.Rmd). I used
-    [ggplot2](https://github.com/hadley/ggplot2) for the numerous
+-   The visualization code itself is in the [Rmd of the post](post.Rmd).
+    I used [ggplot2](https://github.com/hadley/ggplot2) for the numerous
     barplots, [viridis](https://github.com/sjmgarnier/viridis) for nice
     color scales, and [circlize](https://github.com/jokergoo/circlize)
     for the circle plot.
