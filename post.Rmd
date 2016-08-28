@@ -21,7 +21,7 @@ Have you tweeted about your "#firstsevenjobs"? I did!
 
 “#firstsevenjobs" and “#first7jobs" tweets initial goal was to provide a short description of the 7 first activities they were paid for. It was quite fun to read them in my timeline! Of course the hashtag was also used by spammers, for making jokes, and for commenting the hashtag, so not all the tweets contain 7 job descriptions. 
 
-However, I am confident quite a lot of “#firstsevenjobs" and “#first7jobs" actually describe first jobs, so I decided to use them as example of text analysis in R with Monkeylearn, starting from querying Twitter API with the rtweet package, then cleaning the tweets a bit, and then using the monkeylearn package to classify the jobs in an industry.
+However, I am confident quite a lot of “#firstsevenjobs" and “#first7jobs" actually describe first jobs, so I decided to use them as example of text analysis in R with Monkeylearn, starting from querying Twitter API with the rtweet package, then cleaning the tweets a bit, and then using the monkeylearn package to classify the jobs in a field of work
 
 ```{r, echo = FALSE}
 load("data/first7jobs.RData")
@@ -53,7 +53,7 @@ select(first7jobs_parsed, status_id, wordsgroup, rank) %>%
 
 Rank is the rank of the jobs in the tweet, which should be the chronological rank too. For instance, for the first tweet, the first job is "shopping bag", the second "shopping assistant", etc.
 
-# Monkeylearn magic: Summarizing the information by assigning an industry to each job
+# Monkeylearn magic: Summarizing the information by assigning a field to each job
 
 ```{r}
 library("dplyr")
@@ -66,7 +66,7 @@ load("data/parsed_first7jobs.RData")
 
  It would take a long time to read them all the tweets, although I did end up reading a lot of tweets while preparing this post. I wanted to have a general idea of what people did in their life. I turned to machine learning to help me get some information out of the tweets. I'm the creator and maintainer of an [R package called monkeylearn](https://github.com/ropenscilabs/monkeylearn), which is part of the [rOpenSci project](http://ropensci.org/), that allows to use existing Monkeylearn classifiers and extractors, so I knew that Monkeylearn had a [cool job classifier](https://app.monkeylearn.com/main/classifiers/cl_i7vMzUB7/). I sent all the `r nrow(first7jobs_parsed)` job descriptions to Monkeylearn API.
  
-Monkeylearn's job classifier assigns an industry out of 31 possible industries and a probability to each job description. The algorithm uses a [supported vector machines (SVM) model](https://en.wikipedia.org/wiki/Support_vector_machine) for predicting the category of a job. It was originally developped by a client of Monkeylearn as a public module, and was then further developped by the Monkeylearn team, still as a public module -- I really like this collaborative effort. As a Monkeylearn user one could fork the classifier and play with catergories definitions, add or improve data for training the model, etc. With my package one can only use existing models, so that a possible workflow would be to develop modules outside of R and then to use them in R in production. If you wish to know more about classifiers, you can have a look at [Monkeylearn knowledge base](http://docs.monkeylearn.com/knowledge-base/) or even take a Machine learning MOOC such as [this one](https://www.coursera.org/learn/machine-learning). But I disgress, I've been using the jobs classifier as it is, and it was quite fun and above all promising.
+Monkeylearn's job classifier assigns a field out of 31 possible fields (called *industries*) and a probability to each job description. The algorithm uses a [supported vector machines (SVM) model](https://en.wikipedia.org/wiki/Support_vector_machine) for predicting the category of a job. It was originally developped by a client of Monkeylearn as a public module, and was then further developped by the Monkeylearn team, still as a public module -- I really like this collaborative effort. As a Monkeylearn user one could fork the classifier and play with catergories definitions, add or improve data for training the model, etc. With my package one can only use existing models, so that a possible workflow would be to develop modules outside of R and then to use them in R in production. If you wish to know more about classifiers, you can have a look at [Monkeylearn knowledge base](http://docs.monkeylearn.com/knowledge-base/) or even take a Machine learning MOOC such as [this one](https://www.coursera.org/learn/machine-learning). But I disgress, I've been using the jobs classifier as it is, and it was quite fun and above all promising.
 
 I decided to keep only job descriptions for which the probability given by the classifier was higher than 50%. This corresponds to `r nrow(filter(output, probability > 0.5))` job descriptions out of the initial `r nrow(first7jobs_parsed)` job descriptions. 
 
@@ -90,11 +90,11 @@ output_with_words %>%
           legend.position = "none")
 ```
 
-For each `r nrow(first7jobs_parsed)` of the tweets I sent to the jobs classifier, I got an industry with a probability higher to 0.5 for on average 4-5 job descriptions. We might want even more, and as I'll point it out later, we could get more if we put some effort into it and take full advantage of Monkeylearn possibilities!
+For each `r nrow(first7jobs_parsed)` of the tweets I sent to the jobs classifier, I got a field with a probability higher to 0.5 for on average 4-5 job descriptions. We might want even more, and as I'll point it out later, we could get more if we put some effort into it and take full advantage of Monkeylearn possibilities!
 
-# What are jobs by industry?
+# What are jobs by field?
 
-In this work I used the classifier as it was without modifying it, but I was curious to know which jobs ended up in each category. I had a glance at descriptions by industry but this can take a while given the number of jobs in some categories. Thanksfully [Federico Pascual](https://twitter.com/FedericoPascual) reminded me I could use [Monkeylearn's keyword extractor](https://app.monkeylearn.com/main/extractors/ex_y7BPYzNG/) on all job descriptions of each category to find dominant patterns. Such a nice idea, and something my package supports. I chose to get 5 keywords by industry. Here is the result:
+In this work I used the classifier as it was without modifying it, but I was curious to know which jobs ended up in each category. I had a glance at descriptions by field but this can take a while given the number of jobs in some categories. Thanksfully [Federico Pascual](https://twitter.com/FedericoPascual) reminded me I could use [Monkeylearn's keyword extractor](https://app.monkeylearn.com/main/extractors/ex_y7BPYzNG/) on all job descriptions of each category to find dominant patterns. Such a nice idea, and something my package supports. I chose to get 5 keywords by field. Here is the result:
 
 ```{r}
 
@@ -133,9 +133,9 @@ filter(output_with_words,
 
 The most important categories are Restaurant/Food services and Retail. Usual first jobs? 
 
-# Juniorness of the jobs in each industry
+# Juniorness of the jobs in each field
 
-Since we know for each job whether it was the first, third or seventh job of the tweeter, we can explore whether some categories are rather first first jobs than late first jobs. For this, inside each category we can look if the category was mostly a label for first first jobs or for seventh first jobs. See it for yourself:
+Since we know for each job whether it was the first, third or seventh job of the tweeter, we can explore whether some categories are rather first first jobs than late first jobs. For this, inside each field we can look if the field was mostly a label for first first jobs or for seventh first jobs. See it for yourself:
 
 
 ```{r}
@@ -156,7 +156,7 @@ I'd tend to say that some industries such as Business Development / Consulting a
 
 # Transitions between industries
 
-I've said I wanted to look at life trajectories. This dataset won't give me any information about the level of the job of course, e.g. whether you start as a clerk and end up leading your company, but I can look at how people move from one category to another. [My husband](http://dacornu.github.io/) gave me a great idea of a circle graph he had seen in a newspaper. For this I used only job descriptions for which an industry was predicted with a probability higher than 0.5. I kept only possible transitions where there were present more than 10 times in the data, otherwise we'll end up looking at a [hairball](https://twitter.com/drob/status/768485328244056065). 
+I've said I wanted to look at life trajectories. This dataset won't give me any information about the level of the job of course, e.g. whether you start as a clerk and end up leading your company, but I can look at how people move from one category to another. [My husband](http://dacornu.github.io/) gave me a great idea of a circle graph he had seen in a newspaper. For this I used only job descriptions for which a field was predicted with a probability higher than 0.5. I kept only possible transitions where there were present more than 10 times in the data, otherwise we'll end up looking at a [hairball](https://twitter.com/drob/status/768485328244056065). 
 
 ```{r, fig.width=10, fig.height=10}
 library("circlize")
@@ -210,7 +210,7 @@ circos.clear()
 
 ```
 
-On this circle you see different industries, and the transition between them. The length of the circle occupied by each industry depends on the number of jobs belonging to this category, so again the Food and Restauration category is the biggest one. One can see that people taking a position in the Hospitality industry, below the circle, often come from the Restauration or the Retail industry. When they leave the industry, they'll often go work in the Restauration industry. [David Robinson](http://varianceexplained.org/) suggested I found the most common transitions and showed them in directed graphs but I'll keep this idea for later, since this post is quite long already, ah!
+On this circle you see different industries, and the transition between them. The length of the circle occupied by each field depends on the number of jobs belonging to this category, so again the Food and Restauration category is the biggest one. One can see that people taking a position in the Hospitality field, below the circle, often come from the Restauration or the Retail field When they leave this field, they'll often go work in the Restauration field [David Robinson](http://varianceexplained.org/) suggested I find the most common transitions and showed them in directed graphs but I'll keep this idea for later, since this post is quite long already, ah!
 
 As a conclusion, I'm quite excited by the possibilities offered by Monkeylearn for text mining. I might be a grumpy and skeptical statistician so I'll tend to look at all the shortcomings of predictions, but really I think that if ones takes the time to train a module well, they can then get pretty cool information from text written by humans. Now if you tweet about this article, I might go and look at [Monkeylearn's sentiment analysis for tweets module](https://app.monkeylearn.com/main/classifiers/cl_qkjxv9Ly/) instead of reading them.
 
