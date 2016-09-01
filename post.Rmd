@@ -88,6 +88,7 @@ output_with_words %>%
   scale_fill_viridis(discrete = TRUE, option = "plasma")+
     theme(text = element_text(size=25),
           legend.position = "none")
+ggsave(file = "figures/no_jobs_high_prob.svg", width = 13, height = 10)
 ```
 
 For each `r nrow(first7jobs_parsed)` of the tweets I sent to the jobs classifier, I got a field with a probability higher to 0.5 for on average 4-5 job descriptions. We might want even more, and as I'll point it out later, we could get more if we put some effort into it and take full advantage of Monkeylearn possibilities!
@@ -117,18 +118,21 @@ So, well, as any statistical or machine learning prediction... the data you use 
 The `r nrow(filter(output, probability > 0.5))` jobs for which we predicted a category with a probability higher than 0.5 are divided as follows among industries:
 
 ```{r}
-
-
-
 filter(output_with_words,
        probability > 0.5) %>%
+  group_by(label) %>%
+  mutate(n = n()) %>%
+  arrange(n) %>%
+  ungroup() %>%
+  mutate(label = factor(label, ordered = TRUE, levels = unique(label))) %>%
   ggplot() +
   geom_bar(aes(label, fill = label))+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
         legend.position = "none") +
   scale_fill_viridis(discrete = TRUE, option = "magma")+
     theme(text = element_text(size=25)) +
   xlab("")
+ggsave(file = "figures/categories_count.svg", width = 18, height = 12)
 ```
 
 The most important categories are Restaurant/Food services and Retail. Usual first jobs? 
@@ -141,13 +145,28 @@ Since we know for each job whether it was the first, third or seventh job of the
 ```{r}
 filter(output_with_words, probability > 0.5) %>%
   mutate(rank = as.factor(rank)) %>%
+  group_by(label) %>%
+  mutate(n_1 = sum(rank == 1)) %>%
+  mutate(n_2 = sum(rank == 2)) %>%
+  mutate(n_3 = sum(rank == 3)) %>%
+  mutate(n_4 = sum(rank == 4)) %>%
+  mutate(n_5 = sum(rank == 5)) %>%
+  mutate(n_6 = sum(rank == 6)) %>%
+  mutate(n_7 = sum(rank == 7)) %>%
+  mutate(n = n()) %>%
+  arrange(desc(n_1/n), desc(n_2/n), desc(n_3/n),
+          desc(n_4/n), desc(n_5/n), desc(n_6/n),
+          desc(n_7/n)) %>%
+  ungroup() %>%
+  mutate(label = factor(label, ordered = TRUE, levels = unique(label))) %>%
 ggplot() +
   geom_bar(aes(label, fill = rank),
            position = "fill")+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlab("") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))+
     theme(text = element_text(size=25)) +
   scale_fill_viridis(discrete = TRUE)
-
+ggsave(file = "figures/rank_categories.svg", width = 14, height = 16)
 ```
 
 I'd tend to say that some industries such as Business Development / Consulting are not first-entry jobs (more yellow/green i.e. later jobs), while Non-Profit / Volunteering have a higher proportion of brand-new workers (more blue). Not a real surprise I guess?
@@ -160,7 +179,7 @@ I've said I wanted to look at life trajectories. This dataset won't give me any 
 
 ```{r, fig.width=10, fig.height=10}
 library("circlize")
-
+svglite::svglite(file = "figures/circle.svg", width = 12, height = 12)
 # get data with from and to
 count <- mutate(output_with_words,
                             label = substr(label, 1, 11)) %>%
@@ -204,7 +223,7 @@ for(b in 1:length(category)) {
 }
 
 circos.clear()
-
+dev.off()
 
 
 
@@ -216,6 +235,6 @@ As a conclusion, I'm quite excited by the possibilities offered by Monkeylearn f
 
 # Acknowledgements
 
-Note that my whole code is [in this Github repo](https://github.com/masalmon/first_7_jobs). I used those R packages: rtweet, dplyr, tidyr, ggplot2, stringr, circlize and of course monkeylearn. Thanks a lot to their authors, and obviously thanks to people whose tweets I used... I might be a *little bit* more grateful to people who used separators and only posted 7 descriptions in their tweet. If you want to read another "#first7" analysis in R, I highly recommend [David Robinson's post](http://varianceexplained.org/r/seven-fav-packages/) about the "7FavPackages" hashtag.
+Note that my whole code is [in this Github repo](https://github.com/masalmon/first_7_jobs). All analyses were performed in [R](https://www.R-project.org/). I used those R packages: rtweet, dplyr, tidyr, ggplot2, stringr, circlize and of course monkeylearn. Thanks a lot to their authors, and obviously thanks to people whose tweets I used... I might be a *little bit* more grateful to people who used separators and only posted 7 descriptions in their tweet. If you want to read another "#first7" analysis in R, I highly recommend [David Robinson's post](http://varianceexplained.org/r/seven-fav-packages/) about the "7FavPackages" hashtag.
 
 
