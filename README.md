@@ -1,8 +1,8 @@
 Analyzing \#first7jobs tweets with Monkeylearn and R
 ====================================================
 
-In this repo I store the code I used for preparing a blog post for
-Monkeylearn.
+In this repo I store the code I used for preparing [this blog post for
+Monkeylearn](https://blog.monkeylearn.com/analyzing-first7jobs-tweets-monkeylearn-r/).
 
 I used \#first7jobs tweets as example of text analysis in R, starting
 from querying Twitter API with the rtweet package, then cleaning the
@@ -35,7 +35,3 @@ scripts are:
     barplots, [viridis](https://github.com/sjmgarnier/viridis) for nice
     color scales, and [circlize](https://github.com/jokergoo/circlize)
     for the circle plot.
-
-I'll update the repo once the post is ready and up on Monkeylearn blog.
-Until then, don't hesitate to [open an
-issue](https://github.com/masalmon/first_7_jobs/issues).
